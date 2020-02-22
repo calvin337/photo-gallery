@@ -22,7 +22,7 @@ const mockPhotos: PhotoModel[] = [
         url: "https://photos.zillowstatic.com/p_e/ISbxvvi2nhu9ab0000000000.jpg"
     },
     {
-        caption: "Cool photo2",
+        caption: "Cool photo2sdfdsfdsfdsfsdfsdfsdfsdfsdfsdfsdfsdfsdfsdf",
         url: "https://photos.zillowstatic.com/p_e/IS3vslcryav6nq0000000000.jpg"
     },
     {
@@ -47,12 +47,12 @@ const mockPhotos: PhotoModel[] = [
     }
 ]
 
-interface PhotoGalleryProps {
-
-}
+interface PhotoGalleryProps {}
 
 interface PhotoGalleryState {
     photoIndex: number;
+    visible: boolean;
+    clickDisabled: boolean;
 }
 
 const MAX_PHOTOS_SHOWN = 5;
@@ -61,32 +61,56 @@ export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGal
     constructor(props: PhotoGalleryProps) {
         super(props);
         this.state = {
-            photoIndex: 0
+            photoIndex: 0,
+            visible: true,
+            clickDisabled: false
         }
     }
 
     handleIndexUpdate(isLeft: boolean = true) {
         if (isLeft && this.state.photoIndex > 0) {
             this.setState({
-                photoIndex: this.state.photoIndex - MAX_PHOTOS_SHOWN
-            });
+                visible: false,
+                clickDisabled: true
+            })
+            setTimeout(() =>
+                this.setState({
+                    clickDisabled: false,
+                    photoIndex: this.state.photoIndex - MAX_PHOTOS_SHOWN,
+                    visible: true
+                }), 200)
+            
         } else if (!isLeft && this.state.photoIndex + MAX_PHOTOS_SHOWN < mockPhotos.length) {
             this.setState({
-                photoIndex: this.state.photoIndex + MAX_PHOTOS_SHOWN
+                visible: false,
+                clickDisabled: true
             })
+            setTimeout(() =>
+                this.setState({
+                    clickDisabled: false,
+                    photoIndex: this.state.photoIndex + MAX_PHOTOS_SHOWN,
+                    visible: true
+                }), 200)
         }
     }
 
     render() {
         const photosInView = mockPhotos.slice(this.state.photoIndex, this.state.photoIndex + MAX_PHOTOS_SHOWN);
+        const className = this.state.visible?'fadeIn':'fadeOut';
+        const firstPhotoInView = this.state.photoIndex + 1;
+        const lastPhotoInView = this.state.photoIndex + 5;
+
         return (
-            <div className="photoGallery">
-                <div onClick={() => this.handleIndexUpdate()}>
-                    <Arrow/>
-                </div>
-                {photosInView.map((photo, ind) => <Photo key={ind} caption={photo.caption} url={photo.url}/>)}
-                <div onClick={() => this.handleIndexUpdate(false)}>
-                    <Arrow isRight/>
+            <div className="photoGalleryWrapper">
+                <div>Viewing Photos {firstPhotoInView} - {lastPhotoInView} of {mockPhotos.length}</div>
+                <div className={`photoGallery ${className}`}>
+                    <div onClick={() => !this.state.clickDisabled && this.handleIndexUpdate()}>
+                        <Arrow/>
+                    </div>
+                    {photosInView.map((photo, ind) => <Photo key={ind} caption={photo.caption} url={photo.url}/>)}
+                    <div onClick={() => !this.state.clickDisabled && this.handleIndexUpdate(false)}>
+                        <Arrow isRight/>
+                    </div>
                 </div>
             </div>
         )

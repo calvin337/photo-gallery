@@ -27,6 +27,8 @@
   color: white;
   -webkit-font-smoothing: antialiased;
   font-weight: 400;
+  padding: 5px;
+  overflow: hidden;
 }
 
 .arrow {
@@ -35,4 +37,19 @@
 
 .rightArrow {
   transform: rotate(180deg);
+}
+
+.fadeOut {
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+
+}
+.fadeIn {
+  opacity: 1;
+  transition: opacity 0.1s ease-in-out;
+
+}
+
+.photoGalleryWrapper {
+  margin-top: 20px;
 }
