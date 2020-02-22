@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import PhotoModel from "../models/PhotoModel";
 import Photo from "./PhotoTile";
+import { Arrow } from "../SVGs/Arrow";
 
 const mockPhotos: PhotoModel[] = [
     {
@@ -10,17 +11,84 @@ const mockPhotos: PhotoModel[] = [
     },
     {
         caption: "Cool photo2",
-        url: "https://lh3.googleusercontent.com/proxy/WmeOrXpiXnEGKMVELKxWvXEDfIhtklfr1dq6NL-eHWEsfo4cnMGd7LRVNY3oe2AjoBich_K2ubGRu0TEm8_0mQlrIoB4k6Lw8ulUN0WeEozQhdtJsZE"
+        url: "https://photos.zillowstatic.com/p_e/ISjrowcjg8s9c61000000000.jpg"
     },
     {
         caption: "Cool photo2",
-        url: "https://lh3.googleusercontent.com/proxy/WmeOrXpiXnEGKMVELKxWvXEDfIhtklfr1dq6NL-eHWEsfo4cnMGd7LRVNY3oe2AjoBich_K2ubGRu0TEm8_0mQlrIoB4k6Lw8ulUN0WeEozQhdtJsZE"
+        url: "https://photos.zillowstatic.com/p_e/IS7msywuir0v650000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/ISbxvvi2nhu9ab0000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/IS3vslcryav6nq0000000000.jpg"
+    },
+    {
+        caption: "Cool photo",
+        url: "https://photos.zillowstatic.com/p_e/IS3vch6v8cwlb71000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/ISzno67134ni2z0000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/ISbp91m0ghkvbt1000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/IS7av8px1t9bth0000000000.jpg"
+    },
+    {
+        caption: "Cool photo2",
+        url: "https://photos.zillowstatic.com/p_e/IS3fc6xqx27bd70000000000.jpg"
     }
 ]
-export default function PhotoGallery() {
-    return (
-        <div className="photoGallery">
-            {mockPhotos.map(photo => <Photo caption={photo.caption} url={photo.url}/>)}
-        </div>
-    )
+
+interface PhotoGalleryProps {
+
+}
+
+interface PhotoGalleryState {
+    photoIndex: number;
+}
+
+const MAX_PHOTOS_SHOWN = 5;
+
+export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGalleryState> {
+    constructor(props: PhotoGalleryProps) {
+        super(props);
+        this.state = {
+            photoIndex: 0
+        }
+    }
+
+    handleIndexUpdate(isLeft: boolean = true) {
+        if (isLeft && this.state.photoIndex > 0) {
+            this.setState({
+                photoIndex: this.state.photoIndex - MAX_PHOTOS_SHOWN
+            });
+        } else if (!isLeft && this.state.photoIndex + MAX_PHOTOS_SHOWN < mockPhotos.length) {
+            this.setState({
+                photoIndex: this.state.photoIndex + MAX_PHOTOS_SHOWN
+            })
+        }
+    }
+
+    render() {
+        const photosInView = mockPhotos.slice(this.state.photoIndex, this.state.photoIndex + MAX_PHOTOS_SHOWN);
+        return (
+            <div className="photoGallery">
+                <div onClick={() => this.handleIndexUpdate()}>
+                    <Arrow/>
+                </div>
+                {photosInView.map((photo, ind) => <Photo key={ind} caption={photo.caption} url={photo.url}/>)}
+                <div onClick={() => this.handleIndexUpdate(false)}>
+                    <Arrow isRight/>
+                </div>
+            </div>
+        )
+    }
 }
