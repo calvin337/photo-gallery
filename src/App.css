@@ -53,3 +53,7 @@
 .photoGalleryWrapper {
   margin-top: 20px;
 }
+
+.photoTileWrapper {
+  cursor: pointer;
+}

@@ -4,58 +4,20 @@ import PhotoModel from "../models/PhotoModel";
 import Photo from "./PhotoTile";
 import { Arrow } from "../SVGs/Arrow";
 
-const mockPhotos: PhotoModel[] = [
-    {
-        caption: "Cool photo",
-        url: "https://na.rdcpix.com/48063128/ab56a5a91431644dc57e031e9b665a54w-c166303xd-w640_h480_q80.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/ISjrowcjg8s9c61000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/IS7msywuir0v650000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/ISbxvvi2nhu9ab0000000000.jpg"
-    },
-    {
-        caption: "Cool photo2sdfdsfdsfdsfsdfsdfsdfsdfsdfsdfsdfsdfsdfsdf",
-        url: "https://photos.zillowstatic.com/p_e/IS3vslcryav6nq0000000000.jpg"
-    },
-    {
-        caption: "Cool photo",
-        url: "https://photos.zillowstatic.com/p_e/IS3vch6v8cwlb71000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/ISzno67134ni2z0000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/ISbp91m0ghkvbt1000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/IS7av8px1t9bth0000000000.jpg"
-    },
-    {
-        caption: "Cool photo2",
-        url: "https://photos.zillowstatic.com/p_e/IS3fc6xqx27bd70000000000.jpg"
-    }
-]
-
-interface PhotoGalleryProps {}
+interface PhotoGalleryProps {
+    photos: PhotoModel[];
+}
 
 interface PhotoGalleryState {
     photoIndex: number;
     visible: boolean;
     clickDisabled: boolean;
+    selectedIndex: number;
 }
 
+// These can be adjusted to whatever we need
 const MAX_PHOTOS_SHOWN = 5;
+const PHOTO_DELAY_MS = 200;
 
 export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGalleryState> {
     constructor(props: PhotoGalleryProps) {
@@ -63,12 +25,16 @@ export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGal
         this.state = {
             photoIndex: 0,
             visible: true,
-            clickDisabled: false
+            clickDisabled: false,
+            selectedIndex: 0
         }
     }
 
     handleIndexUpdate(isLeft: boolean = true) {
         if (isLeft && this.state.photoIndex > 0) {
+            // Need to disable click here to make sure
+            // user can't click again before we update the photos due to the
+            // 200 ms delay
             this.setState({
                 visible: false,
                 clickDisabled: true
@@ -78,9 +44,9 @@ export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGal
                     clickDisabled: false,
                     photoIndex: this.state.photoIndex - MAX_PHOTOS_SHOWN,
                     visible: true
-                }), 200)
+                }), PHOTO_DELAY_MS)
             
-        } else if (!isLeft && this.state.photoIndex + MAX_PHOTOS_SHOWN < mockPhotos.length) {
+        } else if (!isLeft && this.state.photoIndex + MAX_PHOTOS_SHOWN < this.props.photos.length) {
             this.setState({
                 visible: false,
                 clickDisabled: true
@@ -90,27 +56,47 @@ export default class PhotoGallery extends Component <PhotoGalleryProps, PhotoGal
                     clickDisabled: false,
                     photoIndex: this.state.photoIndex + MAX_PHOTOS_SHOWN,
                     visible: true
-                }), 200)
+                }), PHOTO_DELAY_MS)
         }
     }
 
+    handlePhotoSelection(index: number) {
+        this.setState({
+            selectedIndex: index
+        });
+    }
+
     render() {
-        const photosInView = mockPhotos.slice(this.state.photoIndex, this.state.photoIndex + MAX_PHOTOS_SHOWN);
+        const photosInView = this.props.photos.slice(this.state.photoIndex, this.state.photoIndex + MAX_PHOTOS_SHOWN);
         const className = this.state.visible?'fadeIn':'fadeOut';
         const firstPhotoInView = this.state.photoIndex + 1;
         const lastPhotoInView = this.state.photoIndex + 5;
+        const selectedPhoto = this.props.photos[this.state.selectedIndex];
 
         return (
             <div className="photoGalleryWrapper">
-                <div>Viewing Photos {firstPhotoInView} - {lastPhotoInView} of {mockPhotos.length}</div>
+                <div>Viewing Photos {firstPhotoInView} - {lastPhotoInView} of {this.props.photos.length}</div>
                 <div className={`photoGallery ${className}`}>
                     <div onClick={() => !this.state.clickDisabled && this.handleIndexUpdate()}>
                         <Arrow/>
                     </div>
-                    {photosInView.map((photo, ind) => <Photo key={ind} caption={photo.caption} url={photo.url}/>)}
+                    {photosInView.map((photo, ind) => {
+                        return (
+                            <div className="photoTileWrapper" onClick={() => this.handlePhotoSelection(ind)}>
+                                <Photo key={ind} caption={photo.caption} url={photo.url}/>
+                            </div>
+                        )
+                    })}
                     <div onClick={() => !this.state.clickDisabled && this.handleIndexUpdate(false)}>
                         <Arrow isRight/>
                     </div>
+                </div>
+                <div className="selectedPhoto">
+                    <Photo 
+                        caption={selectedPhoto.caption} 
+                        targetHeight={450}
+                        targetWidth={600}
+                        url={selectedPhoto.url} />
                 </div>
             </div>
         )
